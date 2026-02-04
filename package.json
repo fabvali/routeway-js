@@ -1,5 +1,5 @@
 {
-  "name": "clashai.js",
+  "name": "routeway.js.js",
   "version": "1.3",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -9,12 +9,12 @@
   "keywords": [
     "api-wrapper",
     "ai",
-    "clashai"
+    "routeway"
   ],
   "author": "verleihernix",
   "license": "MIT",
-  "description": "An easy-to-use API Wrapper for the ClashAI Api.",
-  "files": [
+  "description": "An easy-to-use API Wrapper for the Routeway API.",
+    "files": [
     "lib"
   ],
   "devDependencies": {
