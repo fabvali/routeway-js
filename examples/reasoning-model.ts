@@ -1,4 +1,4 @@
-import { Client } from 'routeway.js';
+import { Client } from 'routeway';
 
 const client = new Client(process.env.ROUTEWAY_API_KEY!);
 
