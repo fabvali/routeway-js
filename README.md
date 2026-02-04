@@ -142,9 +142,9 @@ await client.models();
 ## License
 
 MIT © [fabvali](https://github.com/fabvali)
+*this npm package is a renewal and remake of the old clashai one made by verleihernix*
 
 ## Links
 
-- [Documentation](https://clashai-js.gitbook.io/docs)
 - [Routeway API](https://routeway.ai)
 - [GitHub](https://github.com/fabvali/routeway.js)
