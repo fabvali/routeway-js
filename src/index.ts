@@ -1,18 +1,20 @@
-interface ChatMessage {
+export interface ChatMessage {
   role: "system" | "user" | "assistant";
   content: string;
 }
 
-interface CompletionRequest {
+export interface CreateCompletionOptions {
   model: string;
   messages: ChatMessage[];
   temperature?: number;
   max_tokens?: number;
   top_p?: number;
+  frequency_penalty?: number;
+  presence_penalty?: number;
   stream?: boolean;
 }
 
-interface CompletionResponse {
+export interface CompletionResponse {
   id: string;
   object: string;
   created: number;
@@ -26,12 +28,12 @@ interface CompletionResponse {
   choices: {
     index: number;
     message: ChatMessage;
-    logprobs: string;
+    logprobs: string | null;
     finish_reason: string;
   }[];
 }
 
-interface Model {
+export interface Model {
   id: string;
   object: string;
   created: number;
@@ -44,18 +46,9 @@ interface Model {
   };
 }
 
-interface ModelResponse {
+export interface ModelResponse {
   object: string;
   data: Model[];
-}
-
-interface CreateCompletionOptions {
-  model: string;
-  messages: ChatMessage[];
-  temperature?: number;
-  max_tokens?: number;
-  top_p?: number;
-  stream?: boolean;
 }
 
 class Completions {
@@ -83,15 +76,19 @@ class Completions {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch completion: ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to fetch completion (${response.status}): ${errorText}`
+      );
     }
-    return response.json() as unknown as CompletionResponse;
+
+    return response.json() as Promise<CompletionResponse>;
   }
 }
 
 class Chat {
   public readonly completions: Completions;
-  
+
   public constructor(apiKey: string, baseUrl: string) {
     this.completions = new Completions(apiKey, baseUrl);
   }
@@ -111,11 +108,20 @@ export class Client {
   public async models(): Promise<ModelResponse> {
     const endpoint = "v1/models";
     const url = `${this.baseUrl}/${endpoint}`;
-    const response = await fetch(url);
-    
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+      },
+    });
+
     if (!response.ok) {
-      throw new Error(`Failed to fetch models: ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to fetch models (${response.status}): ${errorText}`
+      );
     }
-    return response.json() as unknown as ModelResponse;
+
+    return response.json() as Promise<ModelResponse>;
   }
 }
