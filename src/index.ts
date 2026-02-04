@@ -80,6 +80,9 @@ export interface StreamCallbacks {
   onDone?: () => void;
 }
 
+// Helper type to ensure literal type inference
+type StreamOptions<T extends boolean> = Omit<CreateCompletionOptions, 'stream'> & { stream: T };
+
 class Completions {
   private readonly apiKey: string;
   private readonly baseUrl: string;
@@ -89,15 +92,18 @@ class Completions {
     this.baseUrl = baseUrl;
   }
 
+  // Non-streaming overload
   public async create(
-    options: CreateCompletionOptions & { stream?: false | undefined }
+    options: StreamOptions<false> | (Omit<CreateCompletionOptions, 'stream'> & { stream?: undefined })
   ): Promise<CompletionResponse>;
   
+  // Streaming overload - requires callbacks
   public async create(
-    options: CreateCompletionOptions & { stream: true },
+    options: StreamOptions<true>,
     callbacks: StreamCallbacks
   ): Promise<void>;
   
+  // Implementation
   public async create(
     options: CreateCompletionOptions,
     callbacks?: StreamCallbacks
@@ -170,6 +176,7 @@ class Completions {
       reader.releaseLock();
     }
   }
+
   private async processLine(
     line: string,
     callbacks: StreamCallbacks
@@ -198,13 +205,10 @@ class Completions {
       console.warn("Failed to parse chunk:", line);
     }
   }
-  public async *createIterator(
-    options: CreateCompletionOptions
-  ): AsyncGenerator<CompletionChunk, void, unknown> {
-    if (!options.stream) {
-      throw new Error("createIterator requires stream: true");
-    }
 
+  public async *createIterator(
+    options: StreamOptions<true>
+  ): AsyncGenerator<CompletionChunk, void, unknown> {
     const endpoint = "v1/chat/completions";
     const url = `${this.baseUrl}/${endpoint}`;
 
